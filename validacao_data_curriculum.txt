@@ -1,0 +1,14 @@
+CREATE OR REPLACE FUNCTION valida_datas()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.data_inicio > NEW.data_fim THEN
+        RAISE EXCEPTION 'A data de início deve ser anterior à data de término';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_valida_datas
+BEFORE INSERT OR UPDATE ON curriculum
+FOR EACH ROW EXECUTE FUNCTION valida_datas();

@@ -1,0 +1,18 @@
+CREATE OR REPLACE FUNCTION valida_telefone()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.tel01 IS NOT NULL AND LENGTH(NEW.tel01) <> 13 THEN
+        RAISE EXCEPTION 'O telefone 1 deve ter 13 caracteres';
+    END IF;
+
+    IF NEW.tel02 IS NOT NULL AND LENGTH(NEW.tel02) <> 13 THEN
+        RAISE EXCEPTION 'O telefone 2 deve ter 13 caracteres';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_valida_telefone
+BEFORE INSERT OR UPDATE ON curriculum
+FOR EACH ROW EXECUTE FUNCTION valida_telefone();

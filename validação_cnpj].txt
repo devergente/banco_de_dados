@@ -1,0 +1,23 @@
+FUNÇÃO:
+
+
+CREATE OR REPLACE FUNCTION verifica_cnpj_existe()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se o novo CNPJ já existe na tabela "empregador"
+    IF EXISTS (SELECT 1 FROM empregador WHERE cnpj = NEW.cnpj) THEN
+        RAISE EXCEPTION 'Erro: CNPJ já cadastrado.';
+    END IF;
+    -- Se não houver um CNPJ semelhante, permite a inserção
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+TRIGGER:
+
+
+ CREATE TRIGGER trigger_verifica_cnpj_existe
+BEFORE INSERT ON empregador
+FOR EACH ROW
+EXECUTE FUNCTION verifica_cnpj_existe();

@@ -1,0 +1,56 @@
+FUNÇÃO VALIDAR CNPJ:
+
+-- Função para validar CNPJ
+CREATE OR REPLACE FUNCTION validar_cnpj(cnpj_input VARCHAR) RETURNS BOOLEAN AS $$
+DECLARE
+    cnpj VARCHAR;
+    mult1 CONSTANT INTEGER[] := ARRAY[5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    mult2 CONSTANT INTEGER[] := ARRAY[6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    soma1 INTEGER := 0;
+    soma2 INTEGER := 0;
+    digito1 INTEGER;
+    digito2 INTEGER;
+BEGIN
+    cnpj := REGEXP_REPLACE(cnpj_input, '[^\d]', '', 'g');
+
+    IF LENGTH(cnpj) <> 14 THEN
+        RETURN FALSE;
+    END IF;
+
+    FOR i IN 1..12 LOOP
+        soma1 := soma1 + CAST(SUBSTRING(cnpj FROM i FOR 1) AS INTEGER) * mult1[i];
+    END LOOP;
+
+    digito1 := CASE WHEN soma1 % 11 < 2 THEN 0 ELSE 11 - (soma1 % 11) END;
+
+    FOR i IN 1..13 LOOP
+        soma2 := soma2 + CAST(SUBSTRING(cnpj FROM i FOR 1) AS INTEGER) * mult2[i];
+    END LOOP;
+
+    digito2 := CASE WHEN soma2 % 11 < 2 THEN 0 ELSE 11 - (soma2 % 11) END;
+
+    IF digito1 = CAST(SUBSTRING(cnpj FROM 13 FOR 1) AS INTEGER) AND digito2 = CAST(SUBSTRING(cnpj FROM 14 FOR 1) AS INTEGER) THEN
+        RETURN TRUE;
+    ELSE
+        RETURN FALSE;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+TRIGGER:
+
+-- Criação da Trigger
+CREATE OR REPLACE FUNCTION validar_cnpj_trigger() RETURNS TRIGGER AS $$
+BEGIN
+    IF NOT validar_cnpj(NEW.cnpj) THEN
+        RAISE EXCEPTION 'CNPJ inválido. Insira um CNPJ válido.';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validar_cnpj
+BEFORE INSERT ON empregador
+FOR EACH ROW
+EXECUTE FUNCTION validar_cnpj_trigger();

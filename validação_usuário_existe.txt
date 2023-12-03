@@ -1,0 +1,21 @@
+VERIFICAÇÃO DE USUÁRIO UNICO
+
+FUNÇÃO:
+
+CREATE OR REPLACE FUNCTION verifica_usuario_existe()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se o novo username já existe na tabela
+    IF EXISTS (SELECT 1 FROM usuario WHERE username = NEW.username) THEN
+        RAISE EXCEPTION 'Erro: Usuário já existe.';
+    END IF;
+    -- Se não houver um usuário com o mesmo nome, permite a inserção
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+TRIGGER:
+CREATE TRIGGER trigger_verifica_usuario_existe
+BEFORE INSERT ON usuario
+FOR EACH ROW
+EXECUTE FUNCTION verifica_usuario_existe();
