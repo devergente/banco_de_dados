@@ -1,4 +1,6 @@
-# banco_de_dados# Banco de Dados para Rede Social Neurodivergente
+# banco_de_dados # 
+
+Banco de Dados para Rede Social Neurodivergente
 
 ![Diagrama de Entidades e Relacionamentos](https://github.com/devergente/banco_de_dados/blob/main/modelo_bd_definitivo.png?raw=true)
 
