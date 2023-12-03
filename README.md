@@ -1,4 +1,4 @@
-# banco_de_dados # 
+
 
 Banco de Dados para Rede Social Neurodivergente
 
